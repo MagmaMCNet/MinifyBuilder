@@ -1,4 +1,4 @@
-# tinier11
+# MinifyBuilder
 
 Script to build a trimmed-down Windows 10/11 image without TPM, hardware or MS Sign-in requirements.
 Insired by tiny11 builder.
@@ -10,10 +10,6 @@ Included is an autounattend.xml answer file, which is used to bypass the MS acco
 It should work on any build of Windows 11 (see Windows 10 notes below).
 What is removed: check appPackageNames.txt featureNames.txt sysPackageNames.txt - customize by deleting lines or commenting with "#".
 MS Edge and OneDrive removed conditionally - see sysPackageNames.txt.
-
-There is also online/live Win10/11 debloater now available: tinier11online.bat
-It runs on your live Windows 10/11 machine.
-It uses the same text files for removing app and sys packages/features. But it doesn't remove MS Edge and OneDrive, or tweak TPM.
 
 ## Before you start
 0. You need working Windows 10 or 11 machine.
