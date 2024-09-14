@@ -71,6 +71,13 @@ set "index=%index%"
 dism /mount-image /imagefile:%~dp0ISOImage\sources\install.wim /index:%index% /mountdir:%~dp0WindowsInstall || ( call :showerror "Mounting image install.wim failed. Check if you have enough disk space. And your volume should be NTFS." & goto Stop )
 @echo.Mounting complete!
 
+@echo.Loading registry...
+reg load HKLM\zCOMPONENTS "%~dp0WindowsInstall\Windows\System32\config\COMPONENTS" >nul
+reg load HKLM\zDEFAULT "%~dp0WindowsInstall\Windows\System32\config\default" >nul
+reg load HKLM\zNTUSER "%~dp0WindowsInstall\Users\Default\ntuser.dat" >nul
+reg load HKLM\zSOFTWARE "%~dp0WindowsInstall\Windows\System32\config\SOFTWARE" >nul
+reg load HKLM\zSYSTEM "%~dp0WindowsInstall\Windows\System32\config\SYSTEM" >NUL
+
 del /F /Q %TEMP%\longAppPackageNames.txt >NUL 2>NUL
 @echo.Getting Application Packages long names
 dism /image:%~dp0WindowsInstall /Get-ProvisionedAppxPackages | findstr PackageName>%TEMP%\longAppPackageNames.txt
@@ -151,6 +158,7 @@ findstr /IC:"psedo-Minify-MsEdgeBrowser" %TEMP%\uncomSysPackageNames.txt >NUL &&
   takeown /F "%~dp0WindowsInstall\Program Files (x86)\Microsoft\Edge" /R /SKIPSL /D Y >NUL 2>NUL || call :showerror "Takeownership of Edge failed."
   icacls "%~dp0WindowsInstall\Program Files (x86)\Microsoft\Edge" /grant Administrators:F /T /C /Q >NUL 2>NUL || call :showerror "GrantAccess to Edge failed."
   rd /s /q "%~dp0WindowsInstall\Program Files (x86)\Microsoft\Edge" >NUL || call :showerror "Removal of Edge failed."
+  reg delete "HKEY_LOCAL_MACHINE\zSOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge" /f >null
 )
 
 @rem conditional removal of MsEdgeUpdate
@@ -159,6 +167,7 @@ findstr /IC:"psedo-Minify-MsEdgeUpdate" %TEMP%\uncomSysPackageNames.txt >NUL && 
   takeown /F "%~dp0WindowsInstall\Program Files (x86)\Microsoft\EdgeUpdate" /R /SKIPSL /D Y >NUL 2>NUL || call :showerror "Takeownership of EdgeUpdate failed."
   icacls "%~dp0WindowsInstall\Program Files (x86)\Microsoft\EdgeUpdate" /grant Administrators:F /T /C /Q >NUL 2>NUL || call :showerror "GrantAccess to EdgeUpdate failed."
   rd /s /q "%~dp0WindowsInstall\Program Files (x86)\Microsoft\EdgeUpdate" >NUL || call :showerror "Removal of EdgeUpdate failed."
+  reg delete "HKEY_LOCAL_MACHINE\zSOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge Update" /f >null
 )
 
 @rem conditional removal of MsEdgeCore
@@ -190,13 +199,6 @@ findstr /IC:"psedo-Minify-MsOneDrive" %TEMP%\uncomSysPackageNames.txt >NUL && (
 @echo.Adding Custom Packages To Image
 xcopy /s /e /y "%~dp0CustomPackages\*" "%~dp0WindowsInstall\"
 
-@echo.Loading registry...
-reg load HKLM\zCOMPONENTS "%~dp0WindowsInstall\Windows\System32\config\COMPONENTS" >nul
-reg load HKLM\zDEFAULT "%~dp0WindowsInstall\Windows\System32\config\default" >nul
-reg load HKLM\zNTUSER "%~dp0WindowsInstall\Users\Default\ntuser.dat" >nul
-reg load HKLM\zSOFTWARE "%~dp0WindowsInstall\Windows\System32\config\SOFTWARE" >nul
-reg load HKLM\zSYSTEM "%~dp0WindowsInstall\Windows\System32\config\SYSTEM" >NUL
-
 @echo Bypassing system requirements (on the system image):
 Reg add "HKLM\zDEFAULT\Control Panel\UnsupportedHardwareNotificationCache" /v "SV1" /t REG_DWORD /d "0" /f >nul 2>&1
 Reg add "HKLM\zDEFAULT\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d "0" /f >nul 2>&1
@@ -214,6 +216,18 @@ Reg add "HKLM\zSYSTEM\Setup\MoSetup" /v "AllowUpgradesWithUnsupportedTPMOrCPU" /
 @echo.Disabling Teams:
 Reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Communications" /v "ConfigureChatAutoInstall" /t REG_DWORD /d "0" /f >nul 2>&1
 @echo.Disabling Sponsored Apps:
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SilentInstalledAppsEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "ContentDeliveryAllowed" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "FeatureManagementEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "PreInstalledAppsEverEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SoftLandingEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContentEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338388Enabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338393Enabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353694Enabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353696Enabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
 Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "OemPreInstalledAppsEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
 Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "PreInstalledAppsEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
 Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SilentInstalledAppsEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
@@ -227,12 +241,26 @@ Reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\ReserveManager" /v "Shi
 @echo.Disabling Chat icon:
 Reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Windows Chat" /v "ChatIcon" /t REG_DWORD /d "3" /f >nul 2>&1
 Reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarMn" /t REG_DWORD /d "0" /f >nul 2>&1
+
 @echo.Windows Perf Registry Tweaks
 reg add "HKLM\zNTUSER\Control Panel\Desktop" /v "MenuShowDelay" /t REG_SZ /d "1" /f >nul 2>&1
 reg add "HKLM\zNTUSER\Control Panel\Desktop" /v "MinAnimate" /t REG_SZ /d "0" /f >nul 2>&1
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Psched" /v "NonBestEffortLimit" /t REG_DWORD /d "0" /f >nul 2>&1
 reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "DisableEdgeDesktopShortcutCreation" /t REG_DWORD /d "1" /f >nul 2>&1
 reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "LaunchTo" /t REG_DWORD /d "1" /f >nul 2>&1
+
+@echo.Disabling Telemety:
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t "REG_DWORD" /d "0" /f >nul 2>&1
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\Privacy" /v "TailoredExperiencesWithDiagnosticDataEnabled" /t "REG_DWORD" /d "0" /f >nul 2>&1
+reg add "HKLM\zNTUSER\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" /v "HasAccepted" /t "REG_DWORD" /d "0" /f >nul 2>&1
+reg add "HKLM\zNTUSER\Software\Microsoft\Input\TIPC" /v "Enabled" /t REG_DWORD /d "0" /f >nul 2>&1
+reg add "HKLM\zNTUSER\Software\Microsoft\InputPersonalization" /v "RestrictImplicitInkCollection" /t REG_DWORD /d "1" /f >nul 2>&1
+reg add "HKLM\zNTUSER\Software\Microsoft\InputPersonalization" /v "RestrictImplicitTextCollection" /t REG_DWORD /d "1" /f >nul 2>&1
+reg add "HKLM\zNTUSER\Software\Microsoft\InputPersonalization\TrainedDataStore" /v "HarvestContacts" /t REG_DWORD /d "0" /f >nul 2>&1
+reg add "HKLM\zNTUSER\Software\Microsoft\Personalization\Settings" /v "AcceptedPrivacyPolicy" /t REG_DWORD /d "0" /f >nul 2>&1
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f >nul 2>&1
+reg add "HKLM\zSYSTEM\ControlSet001\Services\dmwappushservice" /v "Start" /t REG_DWORD /d "4" /f >nul 2>&1
+
 @echo.Tweaking complete!
 @echo.Unmounting Registry...
 reg unload HKLM\zCOMPONENTS >nul 2>&1
