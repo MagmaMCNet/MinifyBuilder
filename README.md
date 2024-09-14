@@ -33,10 +33,9 @@ and put into the same directory as bat file (or into one of may PATH locations).
 3. There are post-install optimizations of Windows possible. Stay tuned for more.
 
 ## Known issues:
-1. Windows 11 autounattend.xml file is not compatible with Windows 10. So I created a separate autounattend.xml file for Windows 10.
-2. Although Edge is removed, the icon and a ghost of its taskbar pin are still available. Also, there are some remnants in the Settings. But the app in itself is deleted.
-3. Windows Update sometimes manages to reinstall a lot of things - MS Edge, WebExperience etc. They can be manually removed. Let me know if there is a way to permanently block their installation.
-4. Windows 10 x86 (32 bit) is not compatible with autounattend.xml - I'm working to get the working one. Meanwhile - just remove autounattend.xml from script dir if you are on x86 Windows 10.
+1. Although Edge is removed, the icon and a ghost of its taskbar pin are still available. Also, there are some remnants in the Settings. But the app in itself is deleted.
+2. Windows Update sometimes manages to reinstall a lot of things - MS Edge, WebExperience etc. They can be manually removed. Let me know if there is a way to permanently block their installation.
+3. Windows 10 x86 (32 bit) is not compatible with autounattend.xml - I'm working to get the working one. Meanwhile - just remove autounattend.xml from script dir if you are on x86 Windows 10.
 
 ## Improvements compared to tiny11
 Removed hard dependencies on Windows build number.
@@ -47,11 +46,3 @@ Proper error handling with red error text to boot.
 Preservation of previously created tinier11.iso.
 Needless timeout pauses removed.
 A lot of comments to understand the script.
-
-## Is there a virus or trojan?
-There are no binaries supplied, get them from trusted Microsoft websites, and the script source is highly readable and commented. There is no URL invocation of any kind, so nothing suspiciois will be slip-streamed into your ISO.
-
-## Any upcoming Improvements?
-As Windows 11 is rapidly changes there will be more packages added to it, and I will keep my packages updated.
-There might be some light registry tweaks added.
-There will be some improvements to autounattend.xml to do fine tuning.
