@@ -1,0 +1,1 @@
+CustomPackages/ProgramData/Microsoft/Windows/Start Menu/Programs/Start-up/FirstSetup.cmd
